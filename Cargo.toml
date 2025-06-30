@@ -1,0 +1,83 @@
+
+[package]
+name = "nexus-network"
+version = "0.7.9"
+edition = "2021"
+rust-version = "1.75"
+build = "build.rs"
+
+[features]
+# 默认启用 jemalloc 内存优化，与0.8.8保持一致
+default = ["jemalloc"]
+build_proto = []
+# 添加 jemalloc feature 用于内存碎片处理优化
+jemalloc = ["jemallocator"]
+
+[[bin]]
+name = "nexus"
+path = "src/main.rs"
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+lto = "fat"
+strip = true
+codegen-units = 1
+# 内存优化配置
+panic = "abort"           # 减少二进制大小和内存使用
+overflow-checks = false   # 减少运行时检查
+
+[profile.ci-build]
+inherits = "dev"
+opt-level = 0
+debug = 0
+strip = "none"
+lto = false
+codegen-units = 256
+incremental = true
+
+[dependencies]
+#nexus-sdk = { git = "https://github.com/nexus-xyz/nexus-zkvm", tag = "0.3.3" }
+chrono = { version = "0.4.38", features = ["serde"] }
+clap = { version = "4.5", features = ["derive"] }
+colored = "2.1.0"
+crossbeam = "0.8.4"
+crossterm = "0.29.0"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand = "0.8"
+rand_core = "0.6"
+env_logger = "0.11.8"
+home = "0.5.9"
+iana-time-zone = "0.1.60"
+lazy_static = "1.4.0"     # 添加依赖用于全局证明器实例
+log = "0.4.26"
+md5 = "0.7.0"
+nexus-sdk = { git = "https://github.com/nexus-xyz/nexus-zkvm", tag = "0.3.4" }
+postcard = "1.0.10"
+prost = "0.13"
+ratatui = "0.29.0"
+rayon = "1.10"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = { version = "1.0.138" }
+sha3 = "0.10.8"
+sysinfo = "0.33.1"
+thiserror = "2.0.12"
+# 优化tokio配置，减少内存使用
+tokio = { version = "1.38", features = ["rt-multi-thread", "macros", "sync", "time", "signal"], default-features = false }
+# 添加 jemalloc 用于内存碎片处理
+jemallocator = { version = "0.5", optional = true }
+# 添加 once_cell 用于单例优化
+once_cell = "1.19.0"
+strum = "0.26.3"
+parking_lot = "0.12"
+
+[dev-dependencies]
+tempfile = "3.20.0"
+
+[build-dependencies]
+prost-build = "0.13"
+
+[patch.crates-io]
+crunchy = { path = "local_crunchy" }

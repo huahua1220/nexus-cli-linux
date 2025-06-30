@@ -1,0 +1,8 @@
+[package]
+name = "crunchy"
+version = "0.2.2"
+edition = "2018"
+
+[lib]
+name = "crunchy"
+path = "src/lib.rs" 
